@@ -1,13 +1,17 @@
-version: "3.1"
-
 services:
   reverse_proxy:
     build: ./reverse_proxy
-    user: nginx
+    user: root
+    ports:
+      - "8080:80"
+    networks:
+      - front-tier
+    volumes:
+      - ./reverse_proxy/nginx.conf:/etc/nginx/nginx.conf:ro
 
   database:
     build: 
-       context: ./database
+      context: ./database
     image: atsea_db
     user: postgres
     environment:
@@ -15,7 +19,7 @@ services:
       POSTGRES_PASSWORD_FILE: /run/secrets/postgres_password
       POSTGRES_DB: atsea
     ports:
-      - "5432:5432" 
+      - "5432:5432"
     networks:
       - back-tier
     secrets:
@@ -23,12 +27,12 @@ services:
 
   appserver:
     build:
-       context: app
-       dockerfile: Dockerfile
+      context: app
+      dockerfile: Dockerfile
     image: atsea_app
     user: gordon
     ports:
-      - "8080:8080" 
+      - "8081:8080"
       - "5005:5005"
     networks:
       - front-tier
@@ -48,7 +52,8 @@ networks:
   front-tier:
   back-tier:
   payment:
-    driver: overlay
+    driver: bridge
+    attachable: true
 
 secrets:
   postgres_password:
