@@ -29,7 +29,7 @@ def get_tasks():
     if search:
         tasks_query = tasks_query.filter(Task.title.ilike(f"%{search}%"))
 
-    tasks_paginated = tasks_query.paginate(page, per_page, False)
+    tasks_paginated = tasks_query.paginate(page=page, per_page=per_page, error_out=False)
     tasks = [
         {"id": t.id, "title": t.title, "completed": t.completed}
         for t in tasks_paginated.items
