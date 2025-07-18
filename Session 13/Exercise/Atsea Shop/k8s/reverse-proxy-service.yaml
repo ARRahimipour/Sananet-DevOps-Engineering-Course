@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: atsea-reverse-proxy
+  namespace: default
+  annotations:
+    description: "Exposes reverse proxy for external access"
+spec:
+  selector:
+    app: atsea-reverse-proxy
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  type: LoadBalancer

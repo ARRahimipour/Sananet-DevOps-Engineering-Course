@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atsea-database
+  namespace: default
+  annotations:
+    description: "PostgreSQL database for storing application data"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atsea-database
+  template:
+    metadata:
+      labels:
+        app: atsea-database
+    spec:
+      containers:
+      - name: postgres
+        image: postgres:14
+        ports:
+        - containerPort: 5432
+        env:
+        - name: POSTGRES_USER
+          value: gordonuser
+        - name: POSTGRES_DB
+          value: atsea
+        - name: POSTGRES_PASSWORD_FILE
+          value: /run/secrets/postgres_password
+        volumeMounts:
+        - name: postgres-secret
+          mountPath: /run/secrets
+          readOnly: true
+        resources:
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+          limits:
+            cpu: "500m"
+            memory: "512Mi"
+        livenessProbe:
+          tcpSocket:
+            port: 5432
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          exec:
+            command: ["pg_isready", "-U", "gordonuser", "-d", "atsea"]
+          initialDelaySeconds: 10
+          periodSeconds: 5
+      volumes:
+      - name: postgres-secret
+        secret:
+          secretName: postgres-secret
+          items:
+          - key: postgres-password
+            path: postgres_password

@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atsea-reverse-proxy
+  namespace: default
+  annotations:
+    description: "Nginx reverse proxy routing requests to the application server"
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: atsea-reverse-proxy
+  template:
+    metadata:
+      labels:
+        app: atsea-reverse-proxy
+    spec:
+      containers:
+        - name: nginx
+          image: dockersamples/atsea_reverse_proxy:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 15
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
