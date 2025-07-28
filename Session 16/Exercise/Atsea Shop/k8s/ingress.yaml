@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: atseashop-ingress
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/use-regex: "true"
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /()(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: atsea-reverse-proxy
+                port:
+                  number: 80
+          - path: /visualizer(/|$)(.*)
+            pathType: Prefix
+            backend:
+              service:
+                name: atsea-visualizer
+                port:
+                  number: 80
