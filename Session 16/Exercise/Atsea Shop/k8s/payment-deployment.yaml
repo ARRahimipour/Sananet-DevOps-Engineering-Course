@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atsea-payment
+  namespace: default
+  annotations:
+    description: "Payment gateway service for processing payments"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atsea-payment
+  template:
+    metadata:
+      labels:
+        app: atsea-payment
+    spec:
+      containers:
+        - name: payment
+          image: dockersamples/atsea_payment:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DATABASE_URL
+              value: jdbc:postgresql://atsea-database:5432/atsea
+            - name: DATABASE_USERNAME
+              value: gordonuser
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: postgres-secret
+                  key: postgres-password
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 5

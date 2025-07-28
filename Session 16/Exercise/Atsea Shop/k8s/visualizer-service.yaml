@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: atsea-visualizer
+  namespace: default
+  annotations:
+    description: "Service for accessing the visualizer dashboard"
+spec:
+  selector:
+    app: atsea-visualizer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 5000
+  type: LoadBalancer
